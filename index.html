@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painite Admin</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- LOGIN SCREEN -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="gem"></div>
+        <h1>Painite Admin</h1>
+        <p>Bot Control Panel</p>
+      </div>
+      <div class="field">
+        <label>API URL</label>
+        <input id="api-url" type="text" placeholder="https://your-app.railway.app" />
+      </div>
+      <div class="field">
+        <label>Admin Token</label>
+        <div class="pw-wrap">
+          <input id="admin-token" type="password" placeholder="Admin token" />
+          <button type="button" id="toggle-pw" class="pw-toggle" title="Show / hide">👁</button>
+        </div>
+      </div>
+      <button id="login-btn" class="btn-primary">Connect</button>
+      <div id="login-error" class="login-error"></div>
+    </div>
+    <div class="login-foot">Painite Admin Desktop v1.0.0</div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app" class="app hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="gem small"></div>
+        <span>Painite</span>
+      </div>
+      <nav>
+        <button class="nav-item active" data-page="dashboard"><span class="ico">▣</span> Dashboard</button>
+        <button class="nav-item" data-page="numbers"><span class="ico">☎</span> Numbers</button>
+        <button class="nav-item" data-page="users"><span class="ico">⚇</span> Users</button>
+        <button class="nav-item" data-page="smslog"><span class="ico">✉</span> SMS Log</button>
+        <button class="nav-item" data-page="broadcast"><span class="ico">📢</span> Broadcast</button>
+        <button class="nav-item" data-page="settings"><span class="ico">⚙</span> Settings</button>
+      </nav>
+      <div class="sidebar-foot">
+        <button id="refresh-btn" class="btn-ghost">↻ Refresh</button>
+        <button id="logout-btn" class="btn-ghost danger">⎋ Logout</button>
+      </div>
+    </aside>
+
+    <main class="content">
+      <!-- DASHBOARD -->
+      <section id="page-dashboard" class="page active">
+        <header class="page-head">
+          <h2>Dashboard</h2>
+          <div class="head-right">
+            <div class="bot-toggle-wrap">
+              <span class="bot-toggle-label">Bot</span>
+              <label class="switch">
+                <input type="checkbox" id="bot-toggle" />
+                <span class="slider"></span>
+              </label>
+              <span id="bot-state" class="bot-state">—</span>
+            </div>
+            <span id="conn-status" class="status-pill">●  Connected</span>
+          </div>
+        </header>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-ico">⚇</div>
+            <div class="stat-val" id="stat-users">—</div>
+            <div class="stat-label">Total Users</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-ico">☎</div>
+            <div class="stat-val" id="stat-numbers">—</div>
+            <div class="stat-label">Active Ranges</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-ico">✉</div>
+            <div class="stat-val" id="stat-sms">—</div>
+            <div class="stat-label">SMS Delivered</div>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Recent SMS Activity</h3>
+          <div id="dash-recent" class="mini-list"></div>
+        </div>
+      </section>
+
+      <!-- LIVE PANEL -->
+      <section id="page-numbers" class="page">
+        <header class="page-head">
+          <h2>Live Panel</h2>
+          <div class="head-right">
+            <button id="ranges-refresh" class="btn-ghost">🔄 Refresh</button>
+          </div>
+        </header>
+        <div class="add-hint">Live countries &amp; ranges pulled from the connected panel. Numbers are allocated on demand by the bot — nothing to add here.</div>
+        <div class="panel">
+          <table class="data-table">
+            <thead>
+              <tr><th>Country</th><th>Ranges (rid)</th><th>Count</th></tr>
+            </thead>
+            <tbody id="numbers-body"></tbody>
+          </table>
+          <div id="numbers-empty" class="empty hidden">No active ranges — check Settings (API URL / Key) and Test Connection.</div>
+        </div>
+      </section>
+
+      <!-- USERS -->
+      <section id="page-users" class="page">
+        <header class="page-head">
+          <h2>Users</h2>
+        </header>
+        <div class="panel">
+          <table class="data-table">
+            <thead>
+              <tr><th>User ID</th><th>Username</th><th>Name</th><th>Joined</th></tr>
+            </thead>
+            <tbody id="users-body"></tbody>
+          </table>
+          <div id="users-empty" class="empty hidden">No users yet</div>
+        </div>
+      </section>
+
+      <!-- SMS LOG -->
+      <section id="page-smslog" class="page">
+        <header class="page-head">
+          <h2>SMS Log</h2>
+        </header>
+        <div class="panel">
+          <table class="data-table">
+            <thead>
+              <tr><th>Phone</th><th>Country</th><th>OTP</th><th>Message</th><th>Time</th></tr>
+            </thead>
+            <tbody id="smslog-body"></tbody>
+          </table>
+          <div id="smslog-empty" class="empty hidden">No SMS yet</div>
+        </div>
+      </section>
+
+      <!-- BROADCAST -->
+      <section id="page-broadcast" class="page">
+        <header class="page-head">
+          <h2>Broadcast</h2>
+        </header>
+        <div class="panel">
+          <h3>Send message to all users</h3>
+          <textarea id="broadcast-msg" rows="6" placeholder="Type your message here..."></textarea>
+          <button id="broadcast-btn" class="btn-primary">📢 Send Broadcast</button>
+          <div id="broadcast-result" class="broadcast-result"></div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="page-settings" class="page">
+        <header class="page-head">
+          <h2>Settings</h2>
+        </header>
+
+        <div class="panel">
+          <h3>Bot Control</h3>
+          <div class="bot-toggle-wrap big">
+            <label class="switch">
+              <input type="checkbox" id="bot-toggle-2" />
+              <span class="slider"></span>
+            </label>
+            <span id="bot-state-2" class="bot-state">—</span>
+          </div>
+          <div class="add-hint">Turn the whole OTP system on or off. When off, the bot shows "Under Maintenance" to users and stops fetching OTPs.</div>
+        </div>
+
+        <div class="panel">
+          <h3>OTP Panel Configuration</h3>
+          <div class="add-hint">Switch panels any time without touching code. Choose a mode, fill the fields, Save, then Test.</div>
+
+          <div class="field">
+            <label>Mode</label>
+            <select id="set-mode">
+              <option value="api">API (recommended — uses API Key)</option>
+              <option value="scrape">Login (Site URL + Email + Password)</option>
+            </select>
+          </div>
+
+          <div class="settings-group" id="group-api">
+            <div class="field">
+              <label>API URL (endpoint that returns received SMS)</label>
+              <input id="set-api-url" type="text" placeholder="https://panel.com/api/get_sms" />
+            </div>
+            <div class="field">
+              <label>API Key</label>
+              <div class="pw-wrap">
+                <input id="set-api-key" type="password" placeholder="API key / token" />
+                <button type="button" class="pw-toggle" data-target="set-api-key">👁</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-group" id="group-scrape">
+            <div class="field">
+              <label>Site URL</label>
+              <input id="set-site-url" type="text" placeholder="https://panel.com" />
+            </div>
+            <div class="field">
+              <label>Login URL</label>
+              <input id="set-login-url" type="text" placeholder="https://panel.com/login" />
+            </div>
+            <div class="field">
+              <label>SMS Page URL</label>
+              <input id="set-sms-url" type="text" placeholder="https://panel.com/sms" />
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input id="set-email" type="text" placeholder="email@example.com" />
+            </div>
+            <div class="field">
+              <label>Password</label>
+              <div class="pw-wrap">
+                <input id="set-password" type="password" placeholder="password" />
+                <button type="button" class="pw-toggle" data-target="set-password">👁</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-actions">
+            <button id="save-settings-btn" class="btn-primary">💾 Save</button>
+            <button id="test-panel-btn" class="btn-ghost">🔌 Test Connection</button>
+          </div>
+          <div id="settings-result" class="broadcast-result"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script src="renderer.js"></script>
+</body>
+</html>

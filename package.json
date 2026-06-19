@@ -1,0 +1,51 @@
+{
+  "name": "painite-admin-desktop",
+  "version": "1.0.0",
+  "description": "Painite Bot Admin Desktop App",
+  "main": "electron-main.js",
+  "author": "Painite",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --publish never"
+  },
+  "build": {
+    "appId": "com.painite.admin",
+    "productName": "Painite Admin",
+    "files": [
+      "electron-main.js",
+      "preload.js",
+      "index.html",
+      "styles.css",
+      "renderer.js",
+      "icon.png",
+      "icon.ico"
+    ],
+    "win": {
+      "icon": "icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowElevation": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "Painite Admin",
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": true,
+      "artifactName": "Painite-Admin-Setup-${version}.${ext}"
+    },
+    "directories": {
+      "output": "dist"
+    }
+  },
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  }
+}
