@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painite Admin Bot Panel</title>
+  <meta name="description" content="Control panel for Painite OTP bot, live ranges, users, SMS logs, broadcasts, and settings." />
+  <meta property="og:title" content="Painite Admin Bot Panel" />
+  <meta property="og:description" content="Control panel for Painite OTP bot, live ranges, users, SMS logs, broadcasts, and settings." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- LOGIN SCREEN -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="gem"></div>
+        <h1>Painite Admin</h1>
+        <p>Bot Control Panel</p>
+      </div>
+      <div class="field">
+        <label>API URL</label>
+        <input id="api-url" type="text" placeholder="https://your-app.railway.app" />
+      </div>
+      <div class="field">
+        <label>Admin Token</label>
+        <div class="pw-wrap">
+          <input id="admin-token" type="password" placeholder="Admin token" />
+          <button type="button" id="toggle-pw" class="pw-toggle" title="Show / hide">👁</button>
+        </div>
+      </div>
+      <button id="login-btn" class="btn-primary">Connect</button>
+      <div id="login-error" class="login-error"></div>
+    </div>
+    <div class="login-foot">Painite Admin Desktop v1.0.0</div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app" class="app hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="gem small"></div>
+        <span>Painite</span>
+      </div>
+      <nav>
+        <button class="nav-item active" data-page="dashboard"><span class="ico">▣</span> Dashboard</button>
+        <button class="nav-item" data-page="bot"><span class="ico">🤖</span> Bot Simulator</button>
+        <button class="nav-item" data-page="numbers"><span class="ico">☎</span> Numbers</button>
+        <button class="nav-item" data-page="users"><span class="ico">⚇</span> Users</button>
+        <button class="nav-item" data-page="smslog"><span class="ico">✉</span> SMS Log</button>
+        <button class="nav-item" data-page="broadcast"><span class="ico">📢</span> Broadcast</button>
+        <button class="nav-item" data-page="settings"><span class="ico">⚙</span> Settings</button>
+      </nav>
+      <div class="sidebar-foot">
+        <button id="refresh-btn" class="btn-ghost">↻ Refresh</button>
+        <button id="logout-btn" class="btn-ghost danger">⎋ Logout</button>
+      </div>
+    </aside>
+
+    <main class="content">
+      <!-- DASHBOARD -->
+      <section id="page-dashboard" class="page active">
+        <header class="page-head">
+          <h2>Dashboard</h2>
+          <div class="head-right">
+            <div class="bot-toggle-wrap">
+              <span class="bot-toggle-label">Bot</span>
+              <label class="switch">
+                <input type="checkbox" id="bot-toggle" checked />
+                <span class="slider"></span>
+              </label>
+              <span id="bot-state" class="bot-state on">ON</span>
+            </div>
+            <span id="conn-status" class="status-pill">●  Connected</span>
+          </div>
+        </header>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-ico">⚇</div>
+            <div class="stat-val" id="stat-users">3</div>
+            <div class="stat-label">Total Users</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-ico">☎</div>
+            <div class="stat-val" id="stat-numbers">4</div>
+            <div class="stat-label">Active Ranges</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-ico">✉</div>
+            <div class="stat-val" id="stat-sms">3</div>
+            <div class="stat-label">SMS Delivered</div>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Recent SMS Activity</h3>
+          <div id="dash-recent" class="mini-list"></div>
+        </div>
+      </section>
+
+      <!-- BOT SIMULATOR -->
+      <section id="page-bot" class="page">
+        <header class="page-head">
+          <h2>Painite Telegram Bot Simulator</h2>
+          <div class="head-right">
+            <button id="sim-reset-btn" class="btn-ghost">🔄 Reset Chat</button>
+          </div>
+        </header>
+
+        <div class="bot-sim-container">
+          <!-- TELEGRAM CHAT WINDOW -->
+          <div class="telegram-card">
+            <div class="telegram-head">
+              <div class="telegram-avatar">🤖</div>
+              <div class="telegram-title-wrap">
+                <div class="telegram-name">Painite OTP Bot</div>
+                <div class="telegram-status" id="bot-sim-status">bot · online</div>
+              </div>
+            </div>
+
+            <div class="telegram-body" id="bot-chat-body">
+              <div class="bot-bubble">
+                <div class="bot-bubble-text">
+                  <b>🎉 Welcome to Painite OTP Bot!</b><br/><br/>
+                  ⏰ <b>Time:</b> <span id="sim-clock">--:--:--</span><br/>
+                  🤖 <b>Bot Status:</b> Active &amp; Ready<br/><br/>
+                  <b>🚀 Choose an option below to get started!</b>
+                </div>
+              </div>
+            </div>
+
+            <!-- TELEGRAM REPLY KEYBOARD (5 BUTTONS) -->
+            <div class="telegram-keyboard-title">Bot Reply Keyboard Menu</div>
+            <div class="telegram-keyboard">
+              <button class="tg-btn" id="btn-tg-paid"><span class="ico">📱</span> Paid Number</button>
+              <button class="tg-btn" id="btn-tg-random"><span class="ico">📱</span> Get Number (Random)</button>
+              <button class="tg-btn" id="btn-tg-country"><span class="ico">🌍</span> Get Country</button>
+              <button class="tg-btn" id="btn-tg-custom-range"><span class="ico">🎯</span> Custom Range</button>
+              <button class="tg-btn" id="btn-tg-otp" style="grid-column: span 2;"><span class="ico">🔐</span> OTP Check</button>
+            </div>
+          </div>
+
+          <!-- SIMULATOR CONTROL PANEL -->
+          <div class="panel sim-tools-panel">
+            <h3>⚡ Admin Test Tools</h3>
+            <div class="add-hint">Test incoming OTP messages and simulate how users receive SMS verification codes on Painite Bot.</div>
+            
+            <div class="field">
+              <label>Target Phone Number</label>
+              <input id="sim-input-phone" type="text" placeholder="+261346226452" />
+            </div>
+
+            <div class="field">
+              <label>Service / Message Content</label>
+              <input id="sim-input-msg" type="text" placeholder="<#> 849201 est votre code Facebook H29Q+Fsn4Sr" />
+            </div>
+
+            <div class="field">
+              <label>OTP Code</label>
+              <input id="sim-input-code" type="text" placeholder="849201" />
+            </div>
+
+            <button id="sim-send-sms-btn" class="btn-primary">📩 Simulate Incoming SMS OTP</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- LIVE PANEL & CUSTOM RANGES -->
+      <section id="page-numbers" class="page">
+        <header class="page-head">
+          <h2>Live Panel &amp; Custom Ranges</h2>
+          <div class="head-right">
+            <button id="ranges-sync-btn" class="btn-primary" style="padding: 8px 14px; font-size: 13px; margin: 0; width: auto;">⚡ Sync ZebraSMS</button>
+            <button id="ranges-refresh" class="btn-ghost">🔄 Refresh</button>
+          </div>
+        </header>
+        
+        <!-- ADD CUSTOM RANGE BOX -->
+        <div class="panel" style="margin-bottom: 20px;">
+          <h3>🎯 Add Personal Custom Range</h3>
+          <div class="add-hint">Add any country range prefix (e.g. <code>26134</code>, <code>22501</code>, <code>23762</code>, <code>88017</code>, <code>1202</code>, <code>9198</code>). The bot will immediately use it for number generation and OTP listening.</div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) 120px; gap: 12px; align-items: end; margin-top: 12px;">
+            <div class="field" style="margin-bottom: 0;">
+              <label>Range Prefix (e.g. 26134)</label>
+              <input id="new-range-prefix" type="text" placeholder="26134" />
+            </div>
+            <div class="field" style="margin-bottom: 0;">
+              <label>Country Name</label>
+              <input id="new-range-country" type="text" placeholder="Madagascar" />
+            </div>
+            <div class="field" style="margin-bottom: 0;">
+              <label>Service / Sender</label>
+              <input id="new-range-sender" type="text" placeholder="Facebook" />
+            </div>
+            <button id="add-range-btn" class="btn-primary" style="margin: 0; padding: 12px 14px;">➕ Add Range</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <h3>Active Running Countries &amp; Ranges</h3>
+            <span id="range-counter-badge" style="font-size: 12px; background: var(--bg-3); padding: 4px 10px; border-radius: 20px; color: var(--muted); border: 1px solid var(--border);">Live Running</span>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr><th>Country</th><th>Available Ranges (rid)</th><th>Total Ranges</th><th>Action</th></tr>
+            </thead>
+            <tbody id="numbers-body"></tbody>
+          </table>
+          <div id="numbers-empty" class="empty hidden">No active ranges found. Click '⚡ Sync ZebraSMS' or add a custom range above.</div>
+        </div>
+      </section>
+
+      <!-- USERS -->
+      <section id="page-users" class="page">
+        <header class="page-head">
+          <h2>Users</h2>
+        </header>
+        <div class="panel">
+          <table class="data-table">
+            <thead>
+              <tr><th>User ID</th><th>Username</th><th>Name</th><th>Joined</th></tr>
+            </thead>
+            <tbody id="users-body"></tbody>
+          </table>
+          <div id="users-empty" class="empty hidden">No users yet</div>
+        </div>
+      </section>
+
+      <!-- SMS LOG -->
+      <section id="page-smslog" class="page">
+        <header class="page-head">
+          <h2>SMS Log</h2>
+        </header>
+        <div class="panel">
+          <table class="data-table">
+            <thead>
+              <tr><th>Phone</th><th>Country</th><th>OTP</th><th>Message</th><th>Time</th></tr>
+            </thead>
+            <tbody id="smslog-body"></tbody>
+          </table>
+          <div id="smslog-empty" class="empty hidden">No SMS yet</div>
+        </div>
+      </section>
+
+      <!-- BROADCAST -->
+      <section id="page-broadcast" class="page">
+        <header class="page-head">
+          <h2>Broadcast</h2>
+        </header>
+        <div class="panel">
+          <h3>Send message to all users</h3>
+          <textarea id="broadcast-msg" rows="6" placeholder="Type your message here..."></textarea>
+          <button id="broadcast-btn" class="btn-primary">📢 Send Broadcast</button>
+          <div id="broadcast-result" class="broadcast-result"></div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="page-settings" class="page">
+        <header class="page-head">
+          <h2>Settings</h2>
+        </header>
+
+        <div class="panel">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h3>⚡ 24/7 Webhook &amp; Uptime Guardian (ঘুমন্ত মোড ফিক্স)</h3>
+            <span id="webhook-badge" class="status-pill" style="background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3);">🟢 Webhook Active</span>
+          </div>
+          <div class="add-hint">
+            Webhook ব্যবহারের ফলে টেলিগ্রাম সার্ভার থেকে সরাসরি ইনস্ট্যান্ট কানেকশন পৌঁছায়। ব্যবহারকারী মেসেজ দেওয়া মাত্রই সার্ভার ০ মিলিসেকেন্ডে ওয়েক-আপ হয়, ফলে বট কখনো স্লিপ/ঘুমন্ত মোডে যায় না।
+          </div>
+
+          <div class="field" style="margin-top: 14px;">
+            <label>Public Webhook URL</label>
+            <input id="set-webhook-url" type="text" value="https://ais-dev-suqp2koixx2jz3cfxsusah-571489345287.asia-east1.run.app/api/telegram/webhook" />
+          </div>
+
+          <div class="settings-actions" style="margin-top: 14px;">
+            <button id="btn-sync-webhook" class="btn-primary" style="margin: 0; width: auto;">⚡ Re-Sync Webhook (100% Active)</button>
+            <button id="btn-check-webhook" class="btn-ghost">🔄 Check Status</button>
+          </div>
+          <div id="webhook-result" class="broadcast-result"></div>
+        </div>
+
+        <div class="panel">
+          <h3>Bot Control</h3>
+          <div class="bot-toggle-wrap big">
+            <label class="switch">
+              <input type="checkbox" id="bot-toggle-2" />
+              <span class="slider"></span>
+            </label>
+            <span id="bot-state-2" class="bot-state">—</span>
+          </div>
+          <div class="add-hint">Turn the whole OTP system on or off. When off, the bot shows "Under Maintenance" to users and stops fetching OTPs.</div>
+        </div>
+
+        <div class="panel">
+          <h3>📦 Export &amp; Download Bot Zip</h3>
+          <div class="add-hint">Download the latest updated, clean, full-width, 24/7 crash-proof bot project archive.</div>
+          <div style="margin-top: 14px;">
+            <a href="/api/download-bot-zip" download="painite-otp-bot-full.zip" id="btn-download-bot-zip" class="btn-primary" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; padding: 10px 20px; width: auto; font-size: 14px;">
+              📥 Download Latest Bot ZIP (Full Source)
+            </a>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>OTP Panel Configuration</h3>
+          <div class="add-hint">Enter your SMS API endpoint and API Key, then click Save and Test Connection.</div>
+
+          <div class="field">
+            <label>API URL</label>
+            <input id="set-api-url" type="text" value="https://zebrasms.com/api/v1" placeholder="https://zebrasms.com/api/v1" />
+          </div>
+
+          <div class="field">
+            <label>API Key</label>
+            <div class="pw-wrap">
+              <input id="set-api-key" type="text" value="RXD14E761QW" placeholder="RXD14E761QW" />
+              <button type="button" class="pw-toggle" data-target="set-api-key">👁</button>
+            </div>
+          </div>
+
+          <div class="settings-actions">
+            <button id="save-settings-btn" class="btn-primary">💾 Save</button>
+            <button id="test-panel-btn" class="btn-ghost">🔌 Test Connection</button>
+          </div>
+          <div id="settings-result" class="broadcast-result"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script src="renderer.js"></script>
+</body>
+</html>

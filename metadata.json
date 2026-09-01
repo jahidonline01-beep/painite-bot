@@ -1,0 +1,8 @@
+{
+  "name": "Painite Admin Bot Panel",
+  "description": "Control panel for Painite OTP bot, live ranges, users, SMS logs, broadcasts, and settings.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
